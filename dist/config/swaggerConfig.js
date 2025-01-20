@@ -18,7 +18,7 @@ const swaggerDefinition = {
             description: "Local Development Server",
         },
         {
-            url: `https://.../api/v1`,
+            url: `https://care-way.onrender.com/api/v1`,
             description: "Production Server",
         },
     ],
