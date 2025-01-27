@@ -4,10 +4,19 @@ import { AuthService, OtpService } from "../services";
 
 const authService = new AuthService();
 const otpService = new OtpService();
-export const signUp = asyncHandler(async (req: Request, res: Response) => {
-  const { message, user } = await authService.signUp(req.body);
-  res.status(201).json({ status: 201, message, data: { user } });
-});
+export const patientSignUp = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { message, user } = await authService.patientSignUp(req.body);
+    res.status(201).json({ status: 201, message, data: { user } });
+  }
+);
+export const providerSignUp = asyncHandler(
+  async (req: Request, res: Response) => {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const { message, user } = await authService.providerSignUp(req.body, files);
+    res.status(201).json({ status: 201, message, data: { user } });
+  }
+);
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { message, user, token } = await authService.login(req.body);

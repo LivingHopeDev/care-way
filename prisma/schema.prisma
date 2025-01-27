@@ -11,7 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 
 }
 enum Role {
@@ -47,26 +47,27 @@ model Provider {
   id                String   @id @unique @default(uuid())
   userId            String   @unique
   specialization    String
-  availability      Json     
-  operatingHours    String?
   fees              Float
-  location           Json     
-  documents         String
+  state           String 
+  street         String
+  city  String
+  country       String
+  bus_stop  String    
   profileImage String @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
   status            ProviderStatus  @default(PENDING)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   user              User     @relation(fields: [userId], references: [id],onDelete: Cascade)
+  availability      Availability[]     
+  documents         Document[]
 
   @@map("providers")
   @@index([status])
-  @@index([location])
 }
 
 model Patient {
   id        String   @id @unique @default(uuid())
   userId    String   @unique
-  location   Json     
   profileImage String @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,8 +75,31 @@ model Patient {
 
   @@map("patients")
 }
+model Availability {
+  id          String   @id @unique @default(uuid())
+  providerId  String
+  day         String   // e.g., "Monday", "Tuesday"
+  startTime   String   // e.g., "09:00"
+  endTime     String   // e.g., "17:00"
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+ createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@index([providerId])
+  @@map("availabilities")
+}
 
+model Document {
+  id          String   @id @unique @default(uuid())
+  providerId  String
+  fileUrl     String   
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+ createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([providerId])
+  @@map("documents")
+}
 model Otp {
   id     String   @id @unique @default(uuid())
   token  String
@@ -84,6 +108,8 @@ model Otp {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+ createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@index([userId])
   @@map("otps")
 }

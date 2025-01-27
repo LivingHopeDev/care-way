@@ -17,92 +17,53 @@ import {
 import { addEmailToQueue } from "../utils/queue";
 import { OtpService, EmailService } from ".";
 import config from "../config";
-
+import { cloudinary } from "../utils/cloudinary";
 export class AuthService {
   private otpService = new OtpService();
   private emailService = new EmailService();
-  public async signUp(payload: any): Promise<{
+  public async patientSignUp(payload: any): Promise<{
     message: string;
     user: Partial<any>;
   }> {
-    const {
-      name,
-      email,
-      phone,
-      password,
-      gender,
-      role,
-      specialization,
-      location,
-      availability,
-      operatingHours,
-      fees,
-    } = payload;
+    const { name, email, phone, password, gender } = payload;
 
-    const existingUser = await prismaClient.user.findFirst({
-      where: { email },
-    });
-    if (existingUser) {
-      throw new Conflict("User with this email already exists");
-    }
+    const result = await prismaClient.$transaction(async (prisma) => {
+      const existingUser = await prisma.user.findFirst({
+        where: { email },
+      });
+      if (existingUser) {
+        throw new Conflict("User with this email already exists");
+      }
 
-    const hashedPassword = await hashPassword(password);
+      const hashedPassword = await hashPassword(password);
 
-    const newUser = await prismaClient.user.create({
-      data: {
-        name,
-        email,
-        phone,
-        password: hashedPassword,
-        gender,
-        role,
-      },
-    });
-
-    let userResponse;
-    if (role === "PROVIDER") {
-      // Create Provider profile
-      const provider = await prismaClient.provider.create({
+      // Create user
+      const newUser = await prisma.user.create({
         data: {
-          userId: newUser.id,
-          specialization,
-          availability,
-          operatingHours,
-          fees,
-          location,
-          documents: "", // This should be updated after document upload
-          profileImage: "", // This should also be updated after upload
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+          gender,
+          role: "PATIENT",
         },
       });
 
-      userResponse = {
-        id: newUser.id,
-        email: newUser.email,
-        role: newUser.role,
-        provider,
-      };
-    } else if (role === "PATIENT") {
-      // Create Patient profile
-      const patient = await prismaClient.patient.create({
+      // Create patient profile
+      const patient = await prisma.patient.create({
         data: {
           userId: newUser.id,
-          location,
-          profileImage: "",
         },
       });
 
-      userResponse = {
-        id: newUser.id,
-        email: newUser.email,
-        role: newUser.role,
-        patient,
-      };
-    }
+      return { newUser, patient };
+    });
 
-    const otp = await this.otpService.createOtp(newUser.id);
-
+    // Generate OTP and send email outside of transaction
+    const otp = await this.otpService.createOtp(result.newUser.id);
     const { emailBody, emailText } =
       await this.emailService.verifyEmailTemplate(name, otp!.token);
+
     await addEmailToQueue({
       from: config.GOOGLE_SENDER_MAIL,
       to: email,
@@ -114,9 +75,135 @@ export class AuthService {
     return {
       message:
         "User created successfully. Kindly check your email for the OTP.",
-      user: userResponse,
+      user: {
+        id: result.newUser.id,
+        email: result.newUser.email,
+        role: result.newUser.role,
+        patient: result.patient,
+      },
     };
   }
+
+  public async providerSignUp(
+    payload: any,
+    files: { [fieldname: string]: Express.Multer.File[] }
+  ): Promise<{
+    message: string;
+    user: Partial<any>;
+  }> {
+    const {
+      name,
+      email,
+      phone,
+      password,
+      gender,
+      specialization,
+      bus_stop,
+      street,
+      city,
+      state,
+      country,
+      availability,
+      fees,
+    } = payload;
+
+    // Extract `profileImage` and `docs` from `files`
+    const profileImage = files.profileImage?.[0]; // Get the first file in the `profileImage` field
+    const docs = files.docs || [];
+    console.log(docs);
+    if (!profileImage) {
+      throw new Error("Profile image is required.");
+    }
+
+    const result = await prismaClient.$transaction(async (prisma) => {
+      const existingUser = await prisma.user.findFirst({
+        where: { email },
+      });
+      if (existingUser) {
+        throw new Conflict("User with this email already exists");
+      }
+
+      const hashedPassword = await hashPassword(password);
+
+      // Create user
+      const newUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+          gender,
+          role: "PROVIDER",
+        },
+      });
+
+      // Upload documents to Cloudinary
+      const documentUrls = [];
+      for (const doc of docs) {
+        const uploadResult = await cloudinary.uploader.upload(doc.path, {
+          folder: "/careway/docs",
+          resource_type: "raw",
+
+          public_id: `user_${newUser.id}_doc_${doc.originalname}`,
+        });
+        documentUrls.push({ fileUrl: uploadResult.secure_url });
+      }
+
+      // Upload profile image to Cloudinary
+      const imageResult = await cloudinary.uploader.upload(profileImage.path, {
+        folder: "/careway/profile",
+        public_id: `user_${newUser.id}_profile`,
+      });
+
+      // Create provider profile
+      const provider = await prisma.provider.create({
+        data: {
+          userId: newUser.id,
+          specialization,
+          fees: parseInt(fees),
+          street,
+          city,
+          state,
+          country,
+          bus_stop,
+          profileImage: imageResult.secure_url,
+          documents: {
+            create: documentUrls,
+          },
+          availability: {
+            create: availability,
+          },
+        },
+      });
+
+      return { newUser, provider };
+    });
+
+    // Generate OTP and send email outside of transaction
+    const otp = await this.otpService.createOtp(result.newUser.id);
+    const { emailBody, emailText } =
+      await this.emailService.verifyEmailTemplate(name, otp!.token);
+
+    await addEmailToQueue({
+      from: config.GOOGLE_SENDER_MAIL,
+      to: email,
+      subject: "Email Verification",
+      text: emailText,
+      html: emailBody,
+    });
+
+    return {
+      message:
+        "User created successfully. Kindly check your email for the OTP.",
+      user: {
+        id: result.newUser.id,
+        email: result.newUser.email,
+        role: result.newUser.role,
+        provider: result.provider,
+      },
+    };
+  }
+
   public async login(payload: IUserLogin): Promise<{
     message: string;
     user: Partial<User>;

@@ -2,7 +2,8 @@ import { Router } from "express";
 import { authMiddleware, validateData } from "../middlewares";
 import {
   loginSchema,
-  SignUpSchema,
+  PatientSignUpSchema,
+  ProviderSignUpSchema,
   otpSchema,
   resetPasswordSchema,
   resendOtpSchema,
@@ -13,12 +14,26 @@ import {
   logout,
   resendOtp,
   resetPassword,
-  signUp,
+  patientSignUp,
+  providerSignUp,
   verifyOtp,
 } from "../controllers";
 const authRouter: Router = Router();
+import { uploadFiles } from "../utils/multer";
 
-authRouter.post("/register", validateData(SignUpSchema), signUp);
+authRouter.post(
+  "/register/patient",
+  validateData(PatientSignUpSchema),
+  patientSignUp
+);
+
+authRouter.post(
+  "/register/provider",
+  uploadFiles,
+  validateData(ProviderSignUpSchema),
+  providerSignUp
+);
+
 authRouter.post("/login", validateData(loginSchema), login);
 authRouter.post(
   "/password/reset",

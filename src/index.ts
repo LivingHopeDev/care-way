@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express, urlencoded } from "express";
 import cors from "cors";
 import rootRouter from "./routes";
 import { PrismaClient } from "@prisma/client";
@@ -12,6 +12,8 @@ import { Response, Request } from "express";
 const app = express();
 const port = config.PORT;
 app.use(express.json());
+app.use(urlencoded({ extended: false }));
+
 app.use(cors());
 
 app.get("/api", (req, res) => {
