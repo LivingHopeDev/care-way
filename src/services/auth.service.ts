@@ -107,10 +107,8 @@ export class AuthService {
       fees,
     } = payload;
 
-    // Extract `profileImage` and `docs` from `files`
-    const profileImage = files.profileImage?.[0]; // Get the first file in the `profileImage` field
+    const profileImage = files.profileImage?.[0];
     const docs = files.docs || [];
-    console.log(docs);
     if (!profileImage) {
       throw new Error("Profile image is required.");
     }
