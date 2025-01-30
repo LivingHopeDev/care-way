@@ -9,97 +9,128 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // directUrl = env("DIRECT_URL")
-
 }
+
 enum Role {
   PROVIDER
   PATIENT
   ADMIN
 }
+
 enum ProviderStatus {
   PENDING
   APPROVED
   REJECTED
 }
+enum AppointmentStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
 model User {
-  id        String   @id @unique @default(uuid())
-  name      String
-  email     String   @unique
-  phone     String   @unique
-  password  String
-  gender    String
-    isVerified        Boolean  @default(false)
+  id         String  @id @unique @default(uuid())
+  name       String
+  email      String  @unique
+  phone      String  @unique
+  password   String
+  gender     String
+  isVerified Boolean @default(false)
 
-  role      Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  provider  Provider?
-  patient   Patient?
-otp       Otp[]
-session  Session?
+  role        Role
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  provider    Provider?
+  patient     Patient?
+  otp         Otp[]
+  session     Session?
+
   @@map("users")
 }
 
 model Provider {
-  id                String   @id @unique @default(uuid())
-  userId            String   @unique
-  specialization    String
-  fees              Float
-  state           String 
+  id             String         @id @unique @default(uuid())
+  userId         String         @unique
+  specialization String
+  fees           Float
+  state          String
   street         String
-  city  String
-  country       String
-  bus_stop  String    
-  profileImage String @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
-  status            ProviderStatus  @default(PENDING)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id],onDelete: Cascade)
-  availability      Availability[]     
-  documents         Document[]
+  city           String
+  country        String
+  bus_stop       String
+  profileImage   String         @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
+  status         ProviderStatus @default(PENDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availability   Availability[]
+  documents      Document[]
 
-  @@map("providers")
   @@index([status])
+  @@map("providers")
 }
 
 model Patient {
-  id        String   @id @unique @default(uuid())
-  userId    String   @unique
-  profileImage String @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id],onDelete: Cascade)
+  id           String   @id @unique @default(uuid())
+  userId       String   @unique
+  profileImage String   @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment Appointment[]
 
   @@map("patients")
 }
+
 model Availability {
-  id          String   @id @unique @default(uuid())
-  providerId  String
-  day         String   // e.g., "Monday", "Tuesday"
-  startTime   String   // e.g., "09:00"
-  endTime     String   // e.g., "17:00"
-  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
- createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @unique @default(uuid())
+  providerId String
+  date       DateTime  // Now stores the full date (YYYY-MM-DD)
+  startTime  DateTime  // Full timestamp for better time zone handling
+  endTime    DateTime  // Full timestamp for better time zone handling
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([providerId])
   @@map("availabilities")
 }
 
-model Document {
-  id          String   @id @unique @default(uuid())
-  providerId  String
-  fileUrl     String   
-  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+model Appointment {
+  id              String            @id @unique @default(uuid())
+  reason          String
+  patientId       String
+  availabilityId  String
+  appointmentDate DateTime  // Now stores the full date & time in UTC
+  availability    Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  patient         Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  status         AppointmentStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
- createdAt DateTime @default(now())
+  @@index([patientId])
+  @@map("appointments")
+}
+
+
+model Document {
+  id         String   @id @unique @default(uuid())
+  providerId String
+  fileUrl    String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@index([providerId])
   @@map("documents")
 }
+
+
+
 model Otp {
   id     String   @id @unique @default(uuid())
   token  String
@@ -108,8 +139,9 @@ model Otp {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
- createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@index([userId])
   @@map("otps")
 }
@@ -117,7 +149,7 @@ model Otp {
 model Session {
   id     String @id @unique @default(uuid())
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id],onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   sessionToken String
   expiresAt    DateTime

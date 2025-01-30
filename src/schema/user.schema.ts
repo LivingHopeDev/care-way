@@ -20,15 +20,6 @@ export const ProviderSignUpSchema = z.object({
   city: z.string().min(2, "City is required"),
   state: z.string().min(2, "State is required"),
   country: z.string().min(2, "Country is required"),
-  availability: z
-    .array(
-      z.object({
-        day: z.string().min(1, "Day is required"),
-        start: z.string().min(5, "Start time is required"),
-        end: z.string().min(5, "End time is required"),
-      })
-    )
-    .optional(),
   fees: z.string(),
 });
 

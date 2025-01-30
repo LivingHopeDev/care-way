@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import config from "../config";
 import { User } from "@prisma/client";
 import log from "../utils/logger";
-import { ServerError } from "./error";
+import { ServerError, ResourceNotFound } from "./error";
 import { prismaClient } from "..";
 
 export const authMiddleware = async (
@@ -66,13 +66,69 @@ export const authMiddleware = async (
     throw new ServerError("INTERNAL_SERVER_ERROR");
   }
 };
+export const providerMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+
+  // Check if the user is a provider
+  if (user.role !== "PROVIDER") {
+    res.status(403).json({
+      status_code: "403",
+      message: "Unauthorized: Providers only",
+    });
+    return;
+  }
+
+  // Fetch the provider record
+  const provider = await prismaClient.provider.findUnique({
+    where: { userId: user.id },
+  });
+
+  if (!provider) {
+    throw new ResourceNotFound("Provider not found");
+  }
+
+  // Attach the provider to the request object
+  req.provider = provider;
+
+  next();
+};
+export const patientMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+  if (user.role === "PATIENT") {
+    res.status(403).json({
+      status_code: "403",
+      message: "Unauthorized: Patients only",
+    });
+    return;
+  }
+  // Fetch the patient record
+  const patient = await prismaClient.patient.findUnique({
+    where: { userId: user.id },
+  });
+
+  if (!patient) {
+    throw new ResourceNotFound("Patient not found");
+  }
+
+  // Attach the patient to the request object
+  req.patient = patient;
+  next();
+};
 export const adminMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const user = req.user;
-  if (user?.accountType === "admin") {
+  if (user.role === "ADMIN") {
     next();
   } else {
     res.status(403).json({

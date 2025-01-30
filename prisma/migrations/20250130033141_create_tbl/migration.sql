@@ -4,6 +4,9 @@ CREATE TYPE "Role" AS ENUM ('PROVIDER', 'PATIENT', 'ADMIN');
 -- CreateEnum
 CREATE TYPE "ProviderStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
+-- CreateEnum
+CREATE TYPE "AppointmentStatus" AS ENUM ('PENDING', 'ACCEPTED', 'DECLINED');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -54,13 +57,28 @@ CREATE TABLE "patients" (
 CREATE TABLE "availabilities" (
     "id" TEXT NOT NULL,
     "providerId" TEXT NOT NULL,
-    "day" TEXT NOT NULL,
+    "dayOfWeek" TEXT NOT NULL,
     "startTime" TEXT NOT NULL,
     "endTime" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "availabilities_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "appointments" (
+    "id" TEXT NOT NULL,
+    "reason" TEXT NOT NULL,
+    "patientId" TEXT NOT NULL,
+    "availabilityId" TEXT NOT NULL,
+    "appointmentDate" TIMESTAMP(3) NOT NULL,
+    "appointmentTime" TEXT NOT NULL,
+    "status" "AppointmentStatus" NOT NULL DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "appointments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -128,6 +146,12 @@ CREATE UNIQUE INDEX "availabilities_id_key" ON "availabilities"("id");
 CREATE INDEX "availabilities_providerId_idx" ON "availabilities"("providerId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "appointments_id_key" ON "appointments"("id");
+
+-- CreateIndex
+CREATE INDEX "appointments_patientId_idx" ON "appointments"("patientId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "documents_id_key" ON "documents"("id");
 
 -- CreateIndex
@@ -156,6 +180,12 @@ ALTER TABLE "patients" ADD CONSTRAINT "patients_userId_fkey" FOREIGN KEY ("userI
 
 -- AddForeignKey
 ALTER TABLE "availabilities" ADD CONSTRAINT "availabilities_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "providers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "appointments" ADD CONSTRAINT "appointments_availabilityId_fkey" FOREIGN KEY ("availabilityId") REFERENCES "availabilities"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "appointments" ADD CONSTRAINT "appointments_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES "patients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "documents" ADD CONSTRAINT "documents_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "providers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
