@@ -18,9 +18,9 @@ import {
   providerSignUp,
   verifyOtp,
 } from "../controllers";
-const authRouter: Router = Router();
 import { uploadFiles } from "../utils/multer";
 
+const authRouter: Router = Router();
 authRouter.post(
   "/register/patient",
   validateData(PatientSignUpSchema),

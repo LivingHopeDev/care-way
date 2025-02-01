@@ -5,18 +5,12 @@ import { AppointmentService } from "../services";
 const appointmentService = new AppointmentService();
 export const bookAppointment = asyncHandler(
   async (req: Request, res: Response) => {
-    const payload = req.body;
-    const patient = req.patient.id;
+    const patientId = req.patient.id;
+    const appointment = await appointmentService.bookAppointment(
+      patientId,
+      req.body
+    );
 
-    // const { appointment, message } = await appointmentService.bookAppointment(
-    //   patient,
-    //   payload
-    // );
-
-    // res.status(201).json({
-    //   status: "success",
-    //   message,
-    //   data: appointment,
-    // });
+    res.status(201).json({ status: "success", data: appointment });
   }
 );
