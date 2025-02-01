@@ -73,6 +73,18 @@ export const providerMiddleware = async (
 ) => {
   const user = req.user;
 
+  // Fetch the provider record
+  const provider = await prismaClient.provider.findUnique({
+    where: { userId: user.id },
+  });
+
+  if (!provider) {
+    res.status(401).json({
+      status_code: "401",
+      message: "Invalid token",
+    });
+    return;
+  }
   // Check if the user is a provider
   if (user.role !== "PROVIDER") {
     res.status(403).json({
@@ -80,15 +92,6 @@ export const providerMiddleware = async (
       message: "Unauthorized: Providers only",
     });
     return;
-  }
-
-  // Fetch the provider record
-  const provider = await prismaClient.provider.findUnique({
-    where: { userId: user.id },
-  });
-
-  if (!provider) {
-    throw new ResourceNotFound("Provider not found");
   }
 
   // Attach the provider to the request object
@@ -102,22 +105,26 @@ export const patientMiddleware = async (
   next: NextFunction
 ) => {
   const user = req.user;
-  if (user.role === "PATIENT") {
-    res.status(403).json({
-      status_code: "403",
-      message: "Unauthorized: Patients only",
-    });
-    return;
-  }
+
   // Fetch the patient record
   const patient = await prismaClient.patient.findUnique({
     where: { userId: user.id },
   });
 
   if (!patient) {
-    throw new ResourceNotFound("Patient not found");
+    res.status(401).json({
+      status_code: "401",
+      message: "Invalid token",
+    });
+    return;
   }
-
+  if (user.role !== "PATIENT") {
+    res.status(403).json({
+      status_code: "403",
+      message: "Unauthorized: Patients only",
+    });
+    return;
+  }
   // Attach the patient to the request object
   req.patient = patient;
   next();

@@ -11,6 +11,8 @@ export class AppointmentService {
       endTime,
       reason,
     } = payload;
+    const startDateTime = new Date(`${appointmentDate}T${startTime}:00.000Z`);
+    const endDateTime = new Date(`${appointmentDate}T${endTime}:00.000Z`);
 
     const availability = await prismaClient.availability.findUnique({
       where: { id: availabilityId, providerId },
@@ -21,9 +23,9 @@ export class AppointmentService {
     const overlappingAppointment = await prismaClient.appointment.findFirst({
       where: {
         providerId,
-        appointmentDate: new Date(appointmentDate),
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        appointmentDate: startDateTime,
+        startTime: startDateTime,
+        endTime: endDateTime,
       },
     });
 
@@ -36,12 +38,40 @@ export class AppointmentService {
         providerId,
         patientId,
         availabilityId,
-        appointmentDate: new Date(appointmentDate),
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        appointmentDate: startDateTime,
+        startTime: startDateTime,
+        endTime: endDateTime,
         reason,
-        status: "PENDING",
       },
     });
   }
+  async cancelAppointment(appointmentId: string, patientId: string) {
+    const appointment = await prismaClient.appointment.findUnique({
+      where: { id: appointmentId, patientId },
+    });
+
+    if (!appointment) throw new ResourceNotFound("Appointment not found");
+
+    await prismaClient.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: "CANCELLED",
+      },
+    });
+
+    return { message: "Appointment cancelled successfully" };
+  }
+  // Delete an appointment (ADMIN Privilege)
+
+  // async deleteAppointment(appointmentId: string,) {
+  //   const appointment = await prismaClient.appointment.findUnique({
+  //     where: { id: appointmentId },
+  //   });
+
+  //   if (!appointment) throw new ResourceNotFound("Appointment not found");
+
+  //   await prismaClient.appointment.delete({ where: { id: appointmentId } });
+
+  //   return { message: "Appointment deleted successfully" };
+  // }
 }
