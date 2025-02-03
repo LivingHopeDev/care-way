@@ -94,6 +94,65 @@ export class AppointmentService {
     });
   }
 
+  async getAppointmentById(
+    appointmentId: string,
+    userId: string,
+    userRole: string
+  ) {
+    if (userRole === "ADMIN") {
+      const appointment = await prismaClient.appointment.findUnique({
+        where: { id: appointmentId },
+        include: {
+          availability: true,
+          provider: true,
+          patient: true,
+        },
+      });
+
+      if (!appointment) {
+        throw new ResourceNotFound("Appointment not found");
+      }
+
+      return appointment;
+    }
+
+    // For providers and patients
+    const userRecord = await (userRole === "PROVIDER"
+      ? prismaClient.provider.findUnique({ where: { userId } })
+      : prismaClient.patient.findUnique({ where: { userId } }));
+
+    if (!userRecord) {
+      throw new ResourceNotFound("User record not found");
+    }
+
+    const appointment = await prismaClient.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        availability: true,
+        provider: true,
+        patient: true,
+      },
+    });
+
+    if (!appointment) {
+      throw new ResourceNotFound("Appointment not found");
+    }
+
+    if (userRole === "PROVIDER") {
+      if (appointment.providerId !== userRecord.id) {
+        throw new BadRequest("Unauthorized access to appointment");
+      }
+    } else if (userRole === "PATIENT") {
+      if (appointment.patientId !== userRecord.id) {
+        throw new BadRequest("Unauthorized access to appointment");
+      }
+    } else {
+      throw new BadRequest("Invalid user role");
+    }
+
+    return appointment;
+  }
+
   // For Providers
   async acceptOrRejectAppointment(
     appointmentId: string,

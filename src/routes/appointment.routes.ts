@@ -12,6 +12,7 @@ import {
   acceptOrRejectAppointment,
   getAppointmentsByPatient,
   getAppointmentsByProvider,
+  getAppointmentById,
 } from "../controllers";
 import {
   bookAppointmentSchema,
@@ -40,6 +41,8 @@ appointmentRouter.get(
   providerMiddleware,
   getAppointmentsByProvider
 );
+
+appointmentRouter.get("/:id", authMiddleware, getAppointmentById); // For all users
 appointmentRouter.patch(
   "/:id/cancel",
   authMiddleware,
