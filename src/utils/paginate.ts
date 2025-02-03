@@ -3,33 +3,44 @@ interface PaginationParams {
   limit?: number;
   orderBy?: string;
   orderDirection?: "asc" | "desc";
+  where?: object;
+  include?: object;
 }
 
 export const paginate = async (
-  model: any, // The Prisma model you're querying
+  model: any,
   {
     page = 1,
     limit = 10,
     orderBy = "createdAt",
     orderDirection = "desc",
+    where = {},
+    include,
   }: PaginationParams
 ) => {
-  console.log(limit, page);
-  // Limit max items per page to 100
   const take = limit > 100 ? 100 : limit;
-  console.log("take", take);
-
   const skip = (page - 1) * take;
-
-  const totalCount = await model.count();
-
+  const totalCount = await model.count({ where });
   const totalPages = Math.ceil(totalCount / take);
 
-  return {
+  const queryOptions: any = {
+    where,
     take,
     skip,
     orderBy: { [orderBy]: orderDirection },
+  };
+
+  if (include && Object.keys(include).length > 0) {
+    queryOptions.include = include;
+  }
+
+  const data = await model.findMany(queryOptions);
+
+  return {
+    data,
     totalCount,
     totalPages,
+    page,
+    limit,
   };
 };

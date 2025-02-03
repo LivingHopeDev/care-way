@@ -10,6 +10,8 @@ import {
   cancelAppointment,
   deleteAppointment,
   acceptOrRejectAppointment,
+  getAppointmentsByPatient,
+  getAppointmentsByProvider,
 } from "../controllers";
 import {
   bookAppointmentSchema,
@@ -25,21 +27,32 @@ appointmentRouter.post(
   patientMiddleware,
   bookAppointment
 );
+appointmentRouter.get(
+  "/patient",
+  authMiddleware,
+  patientMiddleware,
+  getAppointmentsByPatient
+);
 
-// For provider
+appointmentRouter.get(
+  "/provider",
+  authMiddleware,
+  providerMiddleware,
+  getAppointmentsByProvider
+);
+appointmentRouter.patch(
+  "/:id/cancel",
+  authMiddleware,
+  patientMiddleware,
+  cancelAppointment
+);
+
 appointmentRouter.patch(
   "/:id",
   validateData(updateAppointmentStatus),
   authMiddleware,
   providerMiddleware,
   acceptOrRejectAppointment
-);
-
-appointmentRouter.patch(
-  "/:id/cancel",
-  authMiddleware,
-  patientMiddleware,
-  cancelAppointment
 );
 
 // Admin

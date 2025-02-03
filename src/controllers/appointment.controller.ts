@@ -26,6 +26,26 @@ export const cancelAppointment = asyncHandler(
     res.status(201).json({ status: "success", data: appointment });
   }
 );
+
+export const getAppointmentsByPatient = asyncHandler(
+  async (req: Request, res: Response) => {
+    const patientId = req.patient.id;
+    const { page, limit, orderBy, orderDirection } = req.query;
+    const query = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      orderBy: (orderBy as string) || "createdAt",
+      orderDirection: orderDirection === "asc" ? "asc" : "desc",
+    };
+    const appointment = await appointmentService.getAppointmentsByPatient(
+      patientId,
+      query
+    );
+
+    res.status(201).json({ status: "success", data: appointment });
+  }
+);
+
 // For providers
 export const acceptOrRejectAppointment = asyncHandler(
   async (req: Request, res: Response) => {
@@ -36,6 +56,25 @@ export const acceptOrRejectAppointment = asyncHandler(
       appointmentId,
       providerId,
       status
+    );
+
+    res.status(201).json({ status: "success", data: appointment });
+  }
+);
+
+export const getAppointmentsByProvider = asyncHandler(
+  async (req: Request, res: Response) => {
+    const providerId = req.provider.id;
+    const { page, limit, orderBy, orderDirection } = req.query;
+    const query = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      orderBy: (orderBy as string) || "createdAt",
+      orderDirection: orderDirection === "asc" ? "asc" : "desc",
+    };
+    const appointment = await appointmentService.getAppointmentsByProvider(
+      providerId,
+      query
     );
 
     res.status(201).json({ status: "success", data: appointment });

@@ -2,6 +2,7 @@ import { BookAppointmentInput } from "../schema/appointment.schema";
 import { prismaClient } from "..";
 import { Conflict, ResourceNotFound, BadRequest } from "../middlewares";
 import { AppointmentStatus } from "@prisma/client";
+import { paginate } from "../utils/paginate";
 export class AppointmentService {
   // For Patients
   async bookAppointment(patientId: string, payload: BookAppointmentInput) {
@@ -61,6 +62,36 @@ export class AppointmentService {
     });
 
     return { message: "Appointment cancelled successfully" };
+  }
+
+  async getAppointmentsByPatient(
+    patientId: string,
+    query: {
+      page: number;
+      limit: number;
+      orderBy?: string;
+      orderDirection?: string;
+    }
+  ) {
+    return await paginate(prismaClient.appointment, {
+      where: { patientId },
+      include: { availability: true, provider: true },
+      page: Number(query.page),
+      limit: Number(query.limit),
+      orderBy: query.orderBy || "createdAt",
+      orderDirection: query.orderDirection === "asc" ? "asc" : "desc",
+    });
+  }
+
+  async getAppointmentsByProvider(providerId: string, query) {
+    return await paginate(prismaClient.appointment, {
+      where: { providerId },
+      include: { availability: true, patient: true },
+      page: Number(query.page),
+      limit: Number(query.limit),
+      orderBy: query.orderBy || "createdAt",
+      orderDirection: query.orderDirection === "asc" ? "asc" : "desc",
+    });
   }
 
   // For Providers

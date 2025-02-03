@@ -57,37 +57,21 @@ export class AvailabilityService {
       orderDirection?: string;
     }
   ) {
-    const { page, limit, orderBy, orderDirection } = query;
-
-    const {
-      take,
-      skip,
-      orderBy: sortOrder,
-      totalCount,
-      totalPages,
-    } = await paginate(prismaClient.availability, {
-      page: Number(page),
-      limit: Number(limit),
-      orderBy: orderBy || "createdAt",
-      orderDirection: orderDirection === "asc" ? "asc" : "desc",
-    });
-
-    const availabilities = await prismaClient.availability.findMany({
-      where: {
-        providerId,
-      },
-      take,
-      skip,
-      orderBy: sortOrder,
+    const result = await paginate(prismaClient.availability, {
+      where: { providerId },
+      page: Number(query.page),
+      limit: Number(query.limit),
+      orderBy: query.orderBy || "createdAt",
+      orderDirection: query.orderDirection === "asc" ? "asc" : "desc",
     });
 
     return {
-      data: availabilities,
+      data: result.data,
       pagination: {
-        totalCount,
-        totalPages,
-        currentPage: page,
-        limit,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
+        currentPage: result.page,
+        limit: result.limit,
       },
     };
   }

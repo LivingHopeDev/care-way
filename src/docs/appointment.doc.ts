@@ -85,3 +85,139 @@ export const bookAppointment = `
  *         description: Internal Server Error - Some server error
  */
 `;
+export const cancelAppointment = `
+/**
+ * @swagger
+ * /appointment/{id}/cancel:
+ *   patch:
+ *     summary: Cancel an appointment
+ *     tags: [Appointment]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the appointment to cancel
+ *     responses:
+ *       201:
+ *         description: Appointment cancelled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "Appointment cancelled successfully"
+ *       400:
+ *         description: Bad Request - Invalid appointment ID or request
+ *       404:
+ *         description: Resource Not Found - Appointment not found
+ *       500:
+ *         description: Internal Server Error - Some server error
+ */
+`;
+export const acceptOrRejectAppointment = `
+/**
+ * @swagger
+ * /appointment/{id}:
+ *   patch:
+ *     summary: Accept or reject an appointment
+ *     tags: [Appointment]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the appointment to accept or reject
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: ["ACCEPTED", "REJECTED"]
+ *                 description: New status of the appointment
+ *                 example: "ACCEPTED"
+ *     responses:
+ *       201:
+ *         description: Appointment status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "Appointment accepted successfully"
+ *       400:
+ *         description: Bad Request - Invalid input
+ *       404:
+ *         description: Resource Not Found - Appointment not found
+ *       500:
+ *         description: Internal Server Error - Some server error
+ */
+`;
+
+export const deleteAppointment = `
+/**
+ * @swagger
+ * /appointment/{id}:
+ *   delete:
+ *     summary: Delete an appointment
+ *     tags: [Appointment]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the appointment to delete
+ *     responses:
+ *       201:
+ *         description: Appointment deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "Appointment deleted successfully"
+ *       400:
+ *         description: Bad Request - Invalid appointment ID
+ *       404:
+ *         description: Resource Not Found - Appointment not found
+ *       500:
+ *         description: Internal Server Error - Some server error
+ */
+`;
