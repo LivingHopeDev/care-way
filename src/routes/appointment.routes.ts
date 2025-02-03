@@ -1,7 +1,20 @@
 import { Router } from "express";
-import { adminMiddleware, authMiddleware, validateData } from "../middlewares";
-import { bookAppointment, cancelAppointment } from "../controllers";
-import { bookAppointmentSchema } from "../schema/appointment.schema";
+import {
+  adminMiddleware,
+  authMiddleware,
+  providerMiddleware,
+  validateData,
+} from "../middlewares";
+import {
+  bookAppointment,
+  cancelAppointment,
+  deleteAppointment,
+  acceptOrRejectAppointment,
+} from "../controllers";
+import {
+  bookAppointmentSchema,
+  updateAppointmentStatus,
+} from "../schema/appointment.schema";
 import { patientMiddleware } from "../middlewares";
 const appointmentRouter: Router = Router();
 
@@ -13,6 +26,15 @@ appointmentRouter.post(
   bookAppointment
 );
 
+// For provider
+appointmentRouter.patch(
+  "/:id",
+  validateData(updateAppointmentStatus),
+  authMiddleware,
+  providerMiddleware,
+  acceptOrRejectAppointment
+);
+
 appointmentRouter.patch(
   "/:id/cancel",
   authMiddleware,
@@ -21,10 +43,10 @@ appointmentRouter.patch(
 );
 
 // Admin
-appointmentRouter.patch(
-  "/:id/cancel",
+appointmentRouter.delete(
+  "/:id",
   authMiddleware,
   adminMiddleware,
-  cancelAppointment
+  deleteAppointment
 );
 export { appointmentRouter };

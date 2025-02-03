@@ -1,3 +1,4 @@
+import { AppointmentStatus } from "@prisma/client";
 import { optional, z } from "zod";
 
 export const bookAppointmentSchema = z.object({
@@ -12,5 +13,8 @@ export const bookAppointmentSchema = z.object({
     .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Use HH:mm format"),
 
   reason: z.string(),
+});
+export const updateAppointmentStatus = z.object({
+  status: z.nativeEnum(AppointmentStatus, { message: "invalid" }),
 });
 export type BookAppointmentInput = z.infer<typeof bookAppointmentSchema>;

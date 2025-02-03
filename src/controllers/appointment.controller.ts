@@ -26,7 +26,23 @@ export const cancelAppointment = asyncHandler(
     res.status(201).json({ status: "success", data: appointment });
   }
 );
+// For providers
+export const acceptOrRejectAppointment = asyncHandler(
+  async (req: Request, res: Response) => {
+    const providerId = req.provider.id;
+    const appointmentId = req.params.id as string;
+    const { status } = req.body;
+    const appointment = await appointmentService.acceptOrRejectAppointment(
+      appointmentId,
+      providerId,
+      status
+    );
 
+    res.status(201).json({ status: "success", data: appointment });
+  }
+);
+
+// For Admins
 export const deleteAppointment = asyncHandler(
   async (req: Request, res: Response) => {
     const appointmentId = req.params.id as string;

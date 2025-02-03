@@ -1,8 +1,10 @@
 import { BookAppointmentInput } from "../schema/appointment.schema";
 import { prismaClient } from "..";
 import { Conflict, ResourceNotFound, BadRequest } from "../middlewares";
+import { AppointmentStatus } from "@prisma/client";
 export class AppointmentService {
-  async bookAppointment(patientId: string, payload) {
+  // For Patients
+  async bookAppointment(patientId: string, payload: BookAppointmentInput) {
     const {
       providerId,
       availabilityId,
@@ -61,6 +63,28 @@ export class AppointmentService {
     return { message: "Appointment cancelled successfully" };
   }
 
+  // For Providers
+  async acceptOrRejectAppointment(
+    appointmentId: string,
+    providerId: string,
+    status: AppointmentStatus
+  ) {
+    const appointment = await prismaClient.appointment.findUnique({
+      where: { id: appointmentId, providerId },
+    });
+    if (!appointment) throw new ResourceNotFound("Appointment not found");
+
+    await prismaClient.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status,
+      },
+    });
+
+    return {
+      message: `Appointment ${status.toLowerCase()} successfully`,
+    };
+  }
   // Delete an appointment (ADMIN Privilege)
 
   async deleteAppointment(appointmentId: string) {
