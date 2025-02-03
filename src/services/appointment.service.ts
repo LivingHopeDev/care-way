@@ -60,17 +60,18 @@ export class AppointmentService {
 
     return { message: "Appointment cancelled successfully" };
   }
+
   // Delete an appointment (ADMIN Privilege)
 
-  // async deleteAppointment(appointmentId: string,) {
-  //   const appointment = await prismaClient.appointment.findUnique({
-  //     where: { id: appointmentId },
-  //   });
+  async deleteAppointment(appointmentId: string) {
+    const appointment = await prismaClient.appointment.findUnique({
+      where: { id: appointmentId },
+    });
 
-  //   if (!appointment) throw new ResourceNotFound("Appointment not found");
+    if (!appointment) throw new ResourceNotFound("Appointment not found");
 
-  //   await prismaClient.appointment.delete({ where: { id: appointmentId } });
+    await prismaClient.appointment.delete({ where: { id: appointmentId } });
 
-  //   return { message: "Appointment deleted successfully" };
-  // }
+    return { message: "Appointment deleted successfully" };
+  }
 }

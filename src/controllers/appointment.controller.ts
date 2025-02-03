@@ -26,3 +26,14 @@ export const cancelAppointment = asyncHandler(
     res.status(201).json({ status: "success", data: appointment });
   }
 );
+
+export const deleteAppointment = asyncHandler(
+  async (req: Request, res: Response) => {
+    const appointmentId = req.params.id as string;
+    const appointment = await appointmentService.deleteAppointment(
+      appointmentId
+    );
+
+    res.status(201).json({ status: "success", data: appointment });
+  }
+);

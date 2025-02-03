@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware, validateData } from "../middlewares";
+import { adminMiddleware, authMiddleware, validateData } from "../middlewares";
 import { bookAppointment, cancelAppointment } from "../controllers";
 import { bookAppointmentSchema } from "../schema/appointment.schema";
 import { patientMiddleware } from "../middlewares";
@@ -17,6 +17,14 @@ appointmentRouter.patch(
   "/:id/cancel",
   authMiddleware,
   patientMiddleware,
+  cancelAppointment
+);
+
+// Admin
+appointmentRouter.patch(
+  "/:id/cancel",
+  authMiddleware,
+  adminMiddleware,
   cancelAppointment
 );
 export { appointmentRouter };
