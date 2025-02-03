@@ -49,7 +49,6 @@ export class AppointmentService {
     const appointment = await prismaClient.appointment.findUnique({
       where: { id: appointmentId, patientId },
     });
-
     if (!appointment) throw new ResourceNotFound("Appointment not found");
 
     await prismaClient.appointment.update({
