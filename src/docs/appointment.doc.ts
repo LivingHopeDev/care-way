@@ -90,7 +90,7 @@ export const cancelAppointment = `
  * @swagger
  * /appointment/{id}/cancel:
  *   patch:
- *     summary: Cancel an appointment
+ *     summary: Cancel an appointment by patient
  *     tags: [Appointment]
  *     security:
  *       - BearerAuth: []
@@ -131,7 +131,7 @@ export const acceptOrRejectAppointment = `
  * @swagger
  * /appointment/{id}:
  *   patch:
- *     summary: Accept or reject an appointment
+ *     summary: Accept or reject an appointment (Provider)
  *     tags: [Appointment]
  *     security:
  *       - BearerAuth: []
@@ -179,13 +179,215 @@ export const acceptOrRejectAppointment = `
  *         description: Internal Server Error - Some server error
  */
 `;
+export const getAppointmentsByProvider = `
+/**
+ * @swagger
+ * /appointment/provider:
+ *   get:
+ *     summary: Get all appointments for a provider
+ *     tags: [Appointment]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of records per page
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *         description: Field to order results by
+ *       - in: query
+ *         name: orderDirection
+ *         schema:
+ *           type: string
+ *           enum: ["asc", "desc"]
+ *         description: Order direction (ascending or descending)
+ *     responses:
+ *       200:
+ *         description: List of provider's appointments
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "123e4567-e89b-12d3-a456-426614174000"
+ *                       appointmentDate:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-02-01T10:00:00Z"
+ *                       patient:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "abc12345-e89b-12d3-a456-426614174003"
+ *                           name:
+ *                             type: string
+ *                             example: "John Doe"
+ *       400:
+ *         description: Bad Request - Invalid query parameters
+ *       500:
+ *         description: Internal Server Error - Some server error
+ */
+`;
+export const getAppointmentsByPatient = `
+/**
+ * @swagger
+ * /appointment/patient:
+ *   get:
+ *     summary: Get all appointments for a patient
+ *     tags: [Appointment]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of records per page
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *         description: Field to order results by
+ *       - in: query
+ *         name: orderDirection
+ *         schema:
+ *           type: string
+ *           enum: ["asc", "desc"]
+ *         description: Order direction (ascending or descending)
+ *     responses:
+ *       200:
+ *         description: List of patient's appointments
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "123e4567-e89b-12d3-a456-426614174000"
+ *                       appointmentDate:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-02-01T10:00:00Z"
+ *                       provider:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "provider123"
+ *                           name:
+ *                             type: string
+ *                             example: "Dr. Smith"
+ *       400:
+ *         description: Bad Request - Invalid query parameters
+ *       500:
+ *         description: Internal Server Error - Some server error
+ */`;
 
+export const getAppointmentById = `
+ /**
+ * @swagger
+ * /appointment/{id}:
+ *   get:
+ *     summary: Get appointment details by ID
+ *     tags: [Appointment]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the appointment to retrieve
+ *     responses:
+ *       200:
+ *         description: Appointment details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status_code:
+ *                   type: string
+ *                   example: "200"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "123e4567-e89b-12d3-a456-426614174000"
+ *                     appointmentDate:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-02-01T10:00:00Z"
+ *                     provider:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: "provider123"
+ *                         name:
+ *                           type: string
+ *                           example: "Dr. Smith"
+ *                     patient:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: "abc12345-e89b-12d3-a456-426614174003"
+ *                         name:
+ *                           type: string
+ *                           example: "John Doe"
+ *       400:
+ *         description: Bad Request - Invalid appointment ID or unauthorized access
+ *       404:
+ *         description: Resource Not Found - Appointment not found
+ *       500:
+ *         description: Internal Server Error - Some server error
+ */
+
+
+`;
 export const deleteAppointment = `
 /**
  * @swagger
  * /appointment/{id}:
  *   delete:
- *     summary: Delete an appointment
+ *     summary: Delete an appointment (Admin)
  *     tags: [Appointment]
  *     security:
  *       - BearerAuth: []
