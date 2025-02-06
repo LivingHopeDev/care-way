@@ -5,7 +5,7 @@ import {
   patientMiddleware,
   validateData,
 } from "../middlewares";
-import { createReview } from "../controllers";
+import { createReview, getAllReviews } from "../controllers";
 import { createReviewSchema } from "../schema/review.schema";
 const reviewRouter: Router = Router();
 
@@ -15,6 +15,13 @@ reviewRouter.post(
   authMiddleware,
   patientMiddleware,
   createReview
+);
+reviewRouter.get("/", authMiddleware, adminMiddleware, getAllReviews);
+reviewRouter.get(
+  "/:providerId",
+  authMiddleware,
+  patientMiddleware,
+  getAllReviews
 );
 
 export { reviewRouter };

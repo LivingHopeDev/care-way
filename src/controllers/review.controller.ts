@@ -11,3 +11,37 @@ export const createReview = asyncHandler(
     res.status(201).json({ status: "success", message });
   }
 );
+
+// Controller
+export const getAllReviews = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { page, limit, orderBy, orderDirection } = req.query;
+    const query = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      orderBy: (orderBy as string) || "createdAt",
+      orderDirection: orderDirection === "asc" ? "asc" : "desc",
+    };
+    const reviews = await reviewService.getAllReview(query);
+
+    res.status(200).json({ status: "success", data: reviews });
+  }
+);
+
+// Controller
+export const getProviderReviews = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { providerId } = req.params;
+    const { page, limit, orderBy, orderDirection } = req.query;
+
+    const query = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      orderBy: (orderBy as string) || "createdAt",
+      orderDirection: orderDirection === "asc" ? "asc" : "desc",
+    };
+    const reviews = await reviewService.getProviderReviews(query, providerId);
+
+    res.status(200).json({ status: "success", data: reviews });
+  }
+);

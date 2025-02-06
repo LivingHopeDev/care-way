@@ -14,7 +14,9 @@ export class ProviderService {
     if (role === "PATIENT") {
       return await paginate(prismaClient.provider, {
         where: { status: "APPROVED" },
-        include: { user: true },
+        include: {
+          user: true,
+        },
         page: Number(query.page),
         limit: Number(query.limit),
         orderBy: query.orderBy || "createdAt",
