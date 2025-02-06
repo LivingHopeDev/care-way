@@ -6,14 +6,15 @@ const providerService = new ProviderService();
 export const getAllProviders = asyncHandler(
   async (req: Request, res: Response) => {
     const { page, limit, orderBy, orderDirection } = req.query;
+    const { role } = req.user;
     const query = {
       page: Number(page) || 1,
       limit: Number(limit) || 10,
       orderBy: (orderBy as string) || "createdAt",
       orderDirection: orderDirection === "asc" ? "asc" : "desc",
     };
-    const { data, pagination } = await providerService.getAllProviders(query);
+    const provider = await providerService.getAllProviders(query, role);
 
-    res.status(201).json({ status: "success", data, pagination });
+    res.status(201).json({ status: "success", data: provider });
   }
 );
