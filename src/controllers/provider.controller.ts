@@ -18,3 +18,11 @@ export const getAllProviders = asyncHandler(
     res.status(201).json({ status: "success", data: provider });
   }
 );
+
+export const updateProviderStatus = asyncHandler(
+  async (req: Request, res: Response) => {
+    const provider = await providerService.updateProviderStatus(req.body);
+
+    res.status(201).json({ status: "success", data: provider });
+  }
+);
