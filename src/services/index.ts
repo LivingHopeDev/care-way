@@ -4,3 +4,4 @@ export * from "./emailService";
 export * from "./appointment.service";
 export * from "./providers.service";
 export * from "./review.service";
+export * from "./profile.service";

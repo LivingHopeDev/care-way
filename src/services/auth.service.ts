@@ -59,7 +59,6 @@ export class AuthService {
       return { newUser, patient };
     });
 
-    // Generate OTP and send email outside of transaction
     const otp = await this.otpService.createOtp(result.newUser.id);
     const { emailBody, emailText } =
       await this.emailService.verifyEmailTemplate(name, otp!.token);
@@ -123,7 +122,6 @@ export class AuthService {
 
       const hashedPassword = await hashPassword(password);
 
-      // Create user
       const newUser = await prisma.user.create({
         data: {
           name,
@@ -177,7 +175,6 @@ export class AuthService {
       return { newUser, provider };
     });
 
-    // Generate OTP and send email outside of transaction
     const otp = await this.otpService.createOtp(result.newUser.id);
     const { emailBody, emailText } =
       await this.emailService.verifyEmailTemplate(name, otp!.token);

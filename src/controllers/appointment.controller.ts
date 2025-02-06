@@ -28,7 +28,7 @@ export const cancelAppointment = asyncHandler(
       patientId
     );
 
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
   }
 );
 
@@ -47,7 +47,7 @@ export const getAppointmentsByPatient = asyncHandler(
       query
     );
 
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
   }
 );
 
@@ -66,7 +66,7 @@ export const acceptOrRejectAppointment = asyncHandler(
       status
     );
 
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
   }
 );
 
@@ -85,7 +85,7 @@ export const getAppointmentsByProvider = asyncHandler(
       query
     );
 
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
   }
 );
 export const getAppointmentById = asyncHandler(
@@ -108,7 +108,7 @@ export const getAppointmentById = asyncHandler(
     );
 
     return res.status(200).json({
-      status_code: "200",
+      status: "success",
       data: appointment,
     });
   }
@@ -121,6 +121,6 @@ export const deleteAppointment = asyncHandler(
       appointmentId
     );
 
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
   }
 );
