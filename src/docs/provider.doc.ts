@@ -88,3 +88,81 @@ export const getAllProviders = `
  *         description: Internal Server Error (Some server error)
  */
 `;
+
+export const updateProviderStatus = `/**
+ * @swagger
+ * /providers:
+ *   patch:
+ *     summary: Update the status of a provider
+ *     tags: [Provider]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               providerId:
+ *                 type: string
+ *                 example: "123e4567-e89b-12d3-a456-426614174000"
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, SUSPENDED]
+ *                 example: "ACTIVE"
+ *     responses:
+ *       201:
+ *         description: Provider status successfully updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Provider status updated."
+ *       400:
+ *         description: Invalid request or missing required data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid input data."
+ *       404:
+ *         description: Provider not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Provider not found."
+ *       500:
+ *         description: Internal Server Error (Some server error).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "An error occurred while updating the provider status."
+ */
+`;
