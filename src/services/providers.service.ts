@@ -7,36 +7,13 @@ export class ProviderService {
     orderBy?: string;
     orderDirection?: string;
   }) {
-    const { page, limit, orderBy, orderDirection } = query;
-
-    const {
-      take,
-      skip,
-      orderBy: sortOrder,
-      totalCount,
-      totalPages,
-    } = await paginate(prismaClient.provider, {
-      page: Number(page),
-      limit: Number(limit),
-      orderBy: orderBy || "createdAt",
-      orderDirection: orderDirection === "asc" ? "asc" : "desc",
-    });
-
-    const providers = await prismaClient.provider.findMany({
+    return await paginate(prismaClient.provider, {
       where: {},
-      take,
-      skip,
-      orderBy: sortOrder,
+      include: { user: true },
+      page: Number(query.page),
+      limit: Number(query.limit),
+      orderBy: query.orderBy || "createdAt",
+      orderDirection: query.orderDirection === "asc" ? "asc" : "desc",
     });
-
-    return {
-      data: providers,
-      pagination: {
-        totalCount,
-        totalPages,
-        currentPage: page,
-        limit,
-      },
-    };
   }
 }

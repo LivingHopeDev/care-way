@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // directUrl = env("DIRECT_URL")
 }
 
@@ -25,28 +25,30 @@ enum ProviderStatus {
   APPROVED
   REJECTED
 }
+
 enum AppointmentStatus {
   PENDING
   ACCEPTED
   DECLINED
   CANCELLED
 }
+
 model User {
   id         String  @id @unique @default(uuid())
   name       String
   email      String  @unique
-  phone      String  
+  phone      String
   password   String
   gender     String
   isVerified Boolean @default(false)
 
-  role        Role
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  provider    Provider?
-  patient     Patient?
-  otp         Otp[]
-  session     Session?
+  role      Role
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  provider  Provider?
+  patient   Patient?
+  otp       Otp[]
+  session   Session?
 
   @@map("users")
 }
@@ -69,59 +71,60 @@ model Provider {
   availability   Availability[]
   documents      Document[]
   appointments   Appointment[]
+  review         Review[]
 
   @@index([status])
   @@map("providers")
 }
 
 model Patient {
-  id           String   @id @unique @default(uuid())
-  userId       String   @unique
-  profileImage String   @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  appointment Appointment[]
+  id           String        @id @unique @default(uuid())
+  userId       String        @unique
+  profileImage String        @default("https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment  Appointment[]
+  review       Review[]
 
   @@map("patients")
 }
 
 model Availability {
-  id         String   @id @unique @default(uuid())
-  providerId String
-  date       DateTime  
-  startTime  DateTime 
-  endTime    DateTime  
-  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  id           String        @id @unique @default(uuid())
+  providerId   String
+  date         DateTime
+  startTime    DateTime
+  endTime      DateTime
+  provider     Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
   appointments Appointment[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@index([providerId])
   @@map("availabilities")
 }
 
 model Appointment {
-  id              String            @id @unique @default(uuid())
+  id              String       @id @unique @default(uuid())
   reason          String
   patientId       String
-  providerId       String
+  providerId      String
   availabilityId  String
-  appointmentDate DateTime  
-  startTime     DateTime
-  endTime       DateTime
+  appointmentDate DateTime
+  startTime       DateTime
+  endTime         DateTime
   availability    Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   patient         Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  provider         Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  provider        Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
-  status         AppointmentStatus @default(PENDING)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  status    AppointmentStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   @@index([patientId])
   @@map("appointments")
 }
-
 
 model Document {
   id         String   @id @unique @default(uuid())
@@ -136,7 +139,18 @@ model Document {
   @@map("documents")
 }
 
+model Review {
+  id         String   @id @unique @default(uuid())
+  rating     Int
+  feedback   String
+  providerId String
+  patientId  String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model Otp {
   id     String   @id @unique @default(uuid())
