@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.providerRouter = void 0;
+const express_1 = require("express");
+const middlewares_1 = require("../middlewares");
+const controllers_1 = require("../controllers");
+const provider_schema_1 = require("../schema/provider.schema");
+const providerRouter = (0, express_1.Router)();
+exports.providerRouter = providerRouter;
+providerRouter.get("/", middlewares_1.authMiddleware, controllers_1.getAllProviders);
+providerRouter.patch("/", (0, middlewares_1.validateData)(provider_schema_1.updateProviderStatusSchema), middlewares_1.authMiddleware, controllers_1.updateProviderStatus);

@@ -12,13 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.resendOtp = exports.verifyOtp = exports.resetPassword = exports.forgetPassword = exports.login = exports.signUp = void 0;
+exports.logout = exports.resendOtp = exports.verifyOtp = exports.resetPassword = exports.forgetPassword = exports.login = exports.providerSignUp = exports.patientSignUp = void 0;
 const asyncHandler_1 = __importDefault(require("../middlewares/asyncHandler"));
 const services_1 = require("../services");
 const authService = new services_1.AuthService();
 const otpService = new services_1.OtpService();
-exports.signUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { message, user } = yield authService.signUp(req.body);
+exports.patientSignUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { message, user } = yield authService.patientSignUp(req.body);
+    res.status(201).json({ status: 201, message, data: { user } });
+}));
+exports.providerSignUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const files = req.files;
+    const { message, user } = yield authService.providerSignUp(req.body, files);
     res.status(201).json({ status: 201, message, data: { user } });
 }));
 exports.login = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

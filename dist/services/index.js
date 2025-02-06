@@ -17,3 +17,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./auth.service"), exports);
 __exportStar(require("./otpService"), exports);
 __exportStar(require("./emailService"), exports);
+__exportStar(require("./appointment.service"), exports);
+__exportStar(require("./providers.service"), exports);
+__exportStar(require("./review.service"), exports);

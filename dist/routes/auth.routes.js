@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authRouter = void 0;
+const express_1 = require("express");
+const middlewares_1 = require("../middlewares");
+const user_schema_1 = require("../schema/user.schema");
+const controllers_1 = require("../controllers");
+const multer_1 = require("../utils/multer");
+const authRouter = (0, express_1.Router)();
+exports.authRouter = authRouter;
+authRouter.post("/register/patient", (0, middlewares_1.validateData)(user_schema_1.PatientSignUpSchema), controllers_1.patientSignUp);
+authRouter.post("/register/provider", multer_1.uploadFiles, (0, middlewares_1.validateData)(user_schema_1.ProviderSignUpSchema), controllers_1.providerSignUp);
+authRouter.post("/login", (0, middlewares_1.validateData)(user_schema_1.loginSchema), controllers_1.login);
+authRouter.post("/password/reset", (0, middlewares_1.validateData)(user_schema_1.resetPasswordSchema), controllers_1.resetPassword);
+authRouter.post("/password/email-request", (0, middlewares_1.validateData)(user_schema_1.resendOtpSchema), controllers_1.forgetPassword);
+authRouter.post("/verify-otp", (0, middlewares_1.validateData)(user_schema_1.otpSchema), controllers_1.verifyOtp);
+authRouter.post("/resend-otp", (0, middlewares_1.validateData)(user_schema_1.resendOtpSchema), controllers_1.resendOtp);
+authRouter.post("/logout", middlewares_1.authMiddleware, controllers_1.logout);

@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.availabilityRouter = void 0;
+const express_1 = require("express");
+const middlewares_1 = require("../middlewares");
+const controllers_1 = require("../controllers");
+const availability_schema_1 = require("../schema/availability.schema");
+const availabilityRouter = (0, express_1.Router)();
+exports.availabilityRouter = availabilityRouter;
+availabilityRouter.post("/", middlewares_1.authMiddleware, middlewares_1.providerMiddleware, (0, middlewares_1.validateData)(availability_schema_1.createAvailabilitySchema), controllers_1.createAvailability);
+availabilityRouter.get("/", middlewares_1.authMiddleware, middlewares_1.providerMiddleware, controllers_1.getAvailabilities);
+availabilityRouter.get("/:id", middlewares_1.authMiddleware, controllers_1.getAvailabilityById);
+availabilityRouter.patch("/:id", middlewares_1.authMiddleware, middlewares_1.providerMiddleware, controllers_1.updateAvailability);
+availabilityRouter.delete("/:id", middlewares_1.authMiddleware, middlewares_1.providerMiddleware, controllers_1.deleteAvailability);

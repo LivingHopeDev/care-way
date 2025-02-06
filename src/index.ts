@@ -35,11 +35,6 @@ app.use("/api/v1", rootRouter);
 
 export const prismaClient = new PrismaClient({
   log: ["query"],
-  omit: {
-    user: {
-      password: true,
-    },
-  },
 });
 
 app.use(errorHandler);

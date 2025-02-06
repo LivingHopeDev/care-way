@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminMiddleware = exports.authMiddleware = void 0;
+exports.adminMiddleware = exports.patientMiddleware = exports.providerMiddleware = exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
 const logger_1 = __importDefault(require("../utils/logger"));
@@ -73,9 +73,60 @@ const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.authMiddleware = authMiddleware;
+const providerMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    // Fetch the provider record
+    const provider = yield __1.prismaClient.provider.findUnique({
+        where: { userId: user.id },
+    });
+    if (!provider) {
+        res.status(401).json({
+            status_code: "401",
+            message: "Invalid token",
+        });
+        return;
+    }
+    // Check if the user is a provider
+    if (user.role !== "PROVIDER") {
+        res.status(403).json({
+            status_code: "403",
+            message: "Unauthorized: Providers only",
+        });
+        return;
+    }
+    // Attach the provider to the request object
+    req.provider = provider;
+    next();
+});
+exports.providerMiddleware = providerMiddleware;
+const patientMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    // Fetch the patient record
+    const patient = yield __1.prismaClient.patient.findUnique({
+        where: { userId: user.id },
+    });
+    if (!patient) {
+        res.status(401).json({
+            status_code: "401",
+            message: "Invalid token",
+        });
+        return;
+    }
+    if (user.role !== "PATIENT") {
+        res.status(403).json({
+            status_code: "403",
+            message: "Unauthorized: Patients only",
+        });
+        return;
+    }
+    // Attach the patient to the request object
+    req.patient = patient;
+    next();
+});
+exports.patientMiddleware = patientMiddleware;
 const adminMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    if ((user === null || user === void 0 ? void 0 : user.accountType) === "admin") {
+    if (user.role === "ADMIN") {
         next();
     }
     else {

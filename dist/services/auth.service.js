@@ -19,6 +19,7 @@ const utils_1 = require("../utils");
 const queue_1 = require("../utils/queue");
 const _1 = require(".");
 const config_1 = __importDefault(require("../config"));
+const cloudinary_1 = require("../utils/cloudinary");
 class AuthService {
     constructor() {
         this.otpService = new _1.OtpService();
@@ -56,65 +57,38 @@ class AuthService {
             };
         });
     }
-    signUp(payload) {
+    patientSignUp(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name, email, phone, password, gender, role, specialization, location, availability, operatingHours, fees, } = payload;
-            const existingUser = yield __1.prismaClient.user.findFirst({
-                where: { email },
-            });
-            if (existingUser) {
-                throw new middlewares_1.Conflict("User with this email already exists");
-            }
-            const hashedPassword = yield (0, utils_1.hashPassword)(password);
-            const newUser = yield __1.prismaClient.user.create({
-                data: {
-                    name,
-                    email,
-                    phone,
-                    password: hashedPassword,
-                    gender,
-                    role,
-                },
-            });
-            let userResponse;
-            if (role === "PROVIDER") {
-                // Create Provider profile
-                const provider = yield __1.prismaClient.provider.create({
+            const { name, email, phone, password, gender } = payload;
+            const result = yield __1.prismaClient.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
+                const existingUser = yield prisma.user.findFirst({
+                    where: { email },
+                });
+                if (existingUser) {
+                    throw new middlewares_1.Conflict("User with this email already exists");
+                }
+                const hashedPassword = yield (0, utils_1.hashPassword)(password);
+                // Create user
+                const newUser = yield prisma.user.create({
                     data: {
-                        userId: newUser.id,
-                        specialization,
-                        availability,
-                        operatingHours,
-                        fees,
-                        location,
-                        documents: "", // This should be updated after document upload
-                        profileImage: "", // This should also be updated after upload
+                        name,
+                        email,
+                        phone,
+                        password: hashedPassword,
+                        gender,
+                        role: "PATIENT",
                     },
                 });
-                userResponse = {
-                    id: newUser.id,
-                    email: newUser.email,
-                    role: newUser.role,
-                    provider,
-                };
-            }
-            else if (role === "PATIENT") {
-                // Create Patient profile
-                const patient = yield __1.prismaClient.patient.create({
+                // Create patient profile
+                const patient = yield prisma.patient.create({
                     data: {
                         userId: newUser.id,
-                        location,
-                        profileImage: "",
                     },
                 });
-                userResponse = {
-                    id: newUser.id,
-                    email: newUser.email,
-                    role: newUser.role,
-                    patient,
-                };
-            }
-            const otp = yield this.otpService.createOtp(newUser.id);
+                return { newUser, patient };
+            }));
+            // Generate OTP and send email outside of transaction
+            const otp = yield this.otpService.createOtp(result.newUser.id);
             const { emailBody, emailText } = yield this.emailService.verifyEmailTemplate(name, otp.token);
             yield (0, queue_1.addEmailToQueue)({
                 from: config_1.default.GOOGLE_SENDER_MAIL,
@@ -125,7 +99,98 @@ class AuthService {
             });
             return {
                 message: "User created successfully. Kindly check your email for the OTP.",
-                user: userResponse,
+                user: {
+                    id: result.newUser.id,
+                    email: result.newUser.email,
+                    role: result.newUser.role,
+                    patient: result.patient,
+                },
+            };
+        });
+    }
+    providerSignUp(payload, files) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { name, email, phone, password, gender, specialization, bus_stop, street, city, state, country, availability, fees, } = payload;
+            const profileImage = (_a = files.profileImage) === null || _a === void 0 ? void 0 : _a[0];
+            const docs = files.docs || [];
+            if (!profileImage) {
+                throw new Error("Profile image is required.");
+            }
+            const result = yield __1.prismaClient.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
+                const existingUser = yield prisma.user.findFirst({
+                    where: { email },
+                });
+                if (existingUser) {
+                    throw new middlewares_1.Conflict("User with this email already exists");
+                }
+                const hashedPassword = yield (0, utils_1.hashPassword)(password);
+                // Create user
+                const newUser = yield prisma.user.create({
+                    data: {
+                        name,
+                        email,
+                        phone,
+                        password: hashedPassword,
+                        gender,
+                        role: "PROVIDER",
+                    },
+                });
+                // Upload documents to Cloudinary
+                const documentUrls = [];
+                for (const doc of docs) {
+                    const uploadResult = yield cloudinary_1.cloudinary.uploader.upload(doc.path, {
+                        folder: "/careway/docs",
+                        resource_type: "raw",
+                        public_id: `user_${newUser.id}_doc_${doc.originalname}`,
+                    });
+                    documentUrls.push({ fileUrl: uploadResult.secure_url });
+                }
+                // Upload profile image to Cloudinary
+                const imageResult = yield cloudinary_1.cloudinary.uploader.upload(profileImage.path, {
+                    folder: "/careway/profile",
+                    public_id: `user_${newUser.id}_profile`,
+                });
+                // Create provider profile
+                const provider = yield prisma.provider.create({
+                    data: {
+                        userId: newUser.id,
+                        specialization,
+                        fees: parseInt(fees),
+                        street,
+                        city,
+                        state,
+                        country,
+                        bus_stop,
+                        profileImage: imageResult.secure_url,
+                        documents: {
+                            create: documentUrls,
+                        },
+                        availability: {
+                            create: availability,
+                        },
+                    },
+                });
+                return { newUser, provider };
+            }));
+            // Generate OTP and send email outside of transaction
+            const otp = yield this.otpService.createOtp(result.newUser.id);
+            const { emailBody, emailText } = yield this.emailService.verifyEmailTemplate(name, otp.token);
+            yield (0, queue_1.addEmailToQueue)({
+                from: config_1.default.GOOGLE_SENDER_MAIL,
+                to: email,
+                subject: "Email Verification",
+                text: emailText,
+                html: emailBody,
+            });
+            return {
+                message: "User created successfully. Kindly check your email for the OTP.",
+                user: {
+                    id: result.newUser.id,
+                    email: result.newUser.email,
+                    role: result.newUser.role,
+                    provider: result.provider,
+                },
             };
         });
     }

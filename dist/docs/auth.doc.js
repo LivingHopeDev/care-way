@@ -1,12 +1,137 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.forgetPassword = exports.resendOtp = exports.verifyOtp = exports.login = exports.signUp = void 0;
-exports.signUp = `
+exports.resetPassword = exports.forgetPassword = exports.resendOtp = exports.verifyOtp = exports.login = exports.signUpPatient = exports.signUpProvider = void 0;
+exports.signUpProvider = `
 /**
  * @swagger
- * /auth/register:
+ * /auth/register/provider:
  *   post:
- *     summary: Sign up a new user (Provider or Patient)
+ *     summary: Sign up a new Provider
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Dr. Jane Doe
+ *               email:
+ *                 type: string
+ *                 example: jane.doe@example.com
+ *               phone:
+ *                 type: string
+ *                 example: 1234567890
+ *               password:
+ *                 type: string
+ *                 example: securePassword123
+ *               gender:
+ *                 type: string
+ *                 enum: [MALE, FEMALE]
+ *                 example: FEMALE
+ *               specialization:
+ *                 type: string
+ *                 example: Dermatologist
+ *               bus_stop:
+ *                 type: string
+ *                 example: XYZ Bus Stop
+ *               street:
+ *                 type: string
+ *                 example: 123 Elm St.
+ *               city:
+ *                 type: string
+ *                 example: Lagos
+ *               state:
+ *                 type: string
+ *                 example: Lagos
+ *               country:
+ *                 type: string
+ *                 example: Nigeria
+ *               availability:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   example: "9:00 AM - 5:00 PM"
+ *               fees:
+ *                 type: string
+ *                 example: "1500"
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: The provider's profile image
+ *               docs:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Documents uploaded by the provider
+ *     responses:
+ *       201:
+ *         description: The Provider was successfully created and email verification OTP sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User created successfully. Kindly check your email for the OTP."
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 123e4567-e89b-12d3-a456-426614174000
+ *                     email:
+ *                       type: string
+ *                       example: jane.doe@example.com
+ *                     role:
+ *                       type: string
+ *                       example: PROVIDER
+ *                     provider:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: 123e4567-e89b-12d3-a456-426614174001
+ *                         specialization:
+ *                           type: string
+ *                           example: Dermatologist
+ *                         street:
+ *                           type: string
+ *                           example: 123 Elm St.
+ *                         city:
+ *                           type: string
+ *                           example: Lagos
+ *                         state:
+ *                           type: string
+ *                           example: Lagos
+ *                         country:
+ *                           type: string
+ *                           example: Nigeria
+ *                         fees:
+ *                           type: integer
+ *                           example: 1500
+ *                         profileImage:
+ *                           type: string
+ *                           example: "https://cloudinary.com/careway/profile/user_123_profile.jpg"
+ *       409:
+ *         description: User with this email already exists
+ *       400:
+ *         description: Bad Request (Validation errors)
+ *       500:
+ *         description: Some server error
+ */
+
+`;
+exports.signUpPatient = ` 
+/**
+ * @swagger
+ * /auth/register/patient:
+ *   post:
+ *     summary: Sign up a new Patient
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -17,7 +142,7 @@ exports.signUp = `
  *             properties:
  *               name:
  *                 type: string
- *                 example: john doe
+ *                 example: John Doe
  *               email:
  *                 type: string
  *                 example: john.doe@example.com
@@ -26,311 +151,48 @@ exports.signUp = `
  *                 example: 1234567890
  *               password:
  *                 type: string
- *                 example: test12
+ *                 example: securePassword123
  *               gender:
  *                 type: string
- *                 enum: [MALE, FEMALE]
- *                 example: MALE
- *               role:
- *                 type: string
- *                 enum: [PROVIDER, PATIENT]
- *                 example: PROVIDER
- *               specialization:
- *                 type: string
- *                 example: Dermatologist
- *                 description: Required if role is PROVIDER
- *               location:
- *                 type: object
- *                 description: User's location details
- *                 properties:
- *                   street:
- *                     type: string
- *                     example: abc
- *                   city:
- *                     type: string
- *                     example: lagos
- *                   state:
- *                     type: string
- *                     example: lagos
- *                   country:
- *                     type: string
- *                     example: nigeria
- *               availability:
- *                 type: array
- *                 description: Provider's availability schedule (required if role is PROVIDER)
- *                 items:
- *                   type: object
- *                   properties:
- *                     day:
- *                       type: string
- *                       example: wed
- *                     start:
- *                       type: string
- *                       format: time
- *                       example: 09:00
- *                     end:
- *                       type: string
- *                       format: time
- *                       example: 17:00
- *               fees:
- *                 type: number
- *                 example: 321
- *                 description: Required if role is PROVIDER
+ *                 example: male
  *     responses:
  *       201:
- *         description: The user was successfully created
+ *         description: The Patient was successfully created and email verification OTP sent
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 status:
- *                   type: number
- *                   example: 201
  *                 message:
  *                   type: string
- *                   example: User Created Successfully, Kindly check your mail for your verification token
- *                 data:
+ *                   example: "User created successfully. Kindly check your email for the OTP."
+ *                 user:
  *                   type: object
  *                   properties:
- *                     user:
+ *                     id:
+ *                       type: string
+ *                       example: 123e4567-e89b-12d3-a456-426614174000
+ *                     email:
+ *                       type: string
+ *                       example: john.doe@example.com
+ *                     role:
+ *                       type: string
+ *                       example: PATIENT
+ *                     patient:
  *                       type: object
  *                       properties:
  *                         id:
  *                           type: string
- *                           example: 123e4567-e89b-12d3-a456-426614174000
- *                         name:
- *                           type: string
- *                           example: john doe
- *                         email:
- *                           type: string
- *                           example: john.doe@example.com
- *                         role:
- *                           type: string
- *                           example: PROVIDER
- *                     access_token:
- *                       type: string
- *                       example: jwt-token-here
+ *                           example: 123e4567-e89b-12d3-a456-426614174001
  *       409:
- *         description: User already exists
+ *         description: User with this email already exists
  *       400:
  *         description: Bad Request (Validation errors)
  *       500:
  *         description: Some server error
  */
+
 `;
-// export const signUpProvider = `
-// /**
-//  * @swagger
-//  * /auth/register:
-//  *   post:
-//  *     summary: Sign up a new Provider
-//  *     tags: [Authentication]
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               name:
-//  *                 type: string
-//  *                 example: john doe
-//  *               email:
-//  *                 type: string
-//  *                 example: adewobiadetayo1@gmail.com
-//  *               phone:
-//  *                 type: string
-//  *                 example: 1234567890
-//  *               password:
-//  *                 type: string
-//  *                 example: test12
-//  *               gender:
-//  *                 type: string
-//  *                 enum: [MALE, FEMALE]
-//  *                 example: MALE
-//  *               role:
-//  *                 type: string
-//  *                 enum: [PROVIDER]
-//  *                 example: PROVIDER
-//  *               specialization:
-//  *                 type: string
-//  *                 example: Dermatologist
-//  *               location:
-//  *                 type: object
-//  *                 description: Provider's location details
-//  *                 properties:
-//  *                   street:
-//  *                     type: string
-//  *                     example: abc
-//  *                   city:
-//  *                     type: string
-//  *                     example: lagos
-//  *                   state:
-//  *                     type: string
-//  *                     example: lagos
-//  *                   country:
-//  *                     type: string
-//  *                     example: nigeria
-//  *               availability:
-//  *                 type: array
-//  *                 description: Provider's availability schedule
-//  *                 items:
-//  *                   type: object
-//  *                   properties:
-//  *                     day:
-//  *                       type: string
-//  *                       example: wed
-//  *                     start:
-//  *                       type: string
-//  *                       format: time
-//  *                       example: 09:00
-//  *                     end:
-//  *                       type: string
-//  *                       format: time
-//  *                       example: 17:00
-//  *               fees:
-//  *                 type: number
-//  *                 example: 321
-//  *     responses:
-//  *       201:
-//  *         description: The Provider was successfully created
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: object
-//  *               properties:
-//  *                 status:
-//  *                   type: number
-//  *                   example: 201
-//  *                 message:
-//  *                   type: string
-//  *                   example: Provider Created Successfully, Kindly check your mail for your verification token
-//  *                 data:
-//  *                   type: object
-//  *                   properties:
-//  *                     user:
-//  *                       type: object
-//  *                       properties:
-//  *                         id:
-//  *                           type: string
-//  *                           example: 123e4567-e89b-12d3-a456-426614174000
-//  *                         name:
-//  *                           type: string
-//  *                           example: john doe
-//  *                         email:
-//  *                           type: string
-//  *                           example: adewobiadetayo1@gmail.com
-//  *                         role:
-//  *                           type: string
-//  *                           example: PROVIDER
-//  *                         specialization:
-//  *                           type: string
-//  *                           example: Dermatologist
-//  *                     access_token:
-//  *                       type: string
-//  *                       example: jwt-token-here
-//  *       409:
-//  *         description: Provider already exists
-//  *       400:
-//  *         description: Bad Request (Validation errors)
-//  *       500:
-//  *         description: Some server error
-//  */
-// `;
-// export const signUpPatient = `
-// /**
-//  * @swagger
-//  * /auth/register:
-//  *   post:
-//  *     summary: Sign up a new Patient
-//  *     tags: [Authentication]
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               name:
-//  *                 type: string
-//  *                 example: john doe
-//  *               email:
-//  *                 type: string
-//  *                 example: adewobiadetayo11@gmail.com
-//  *               phone:
-//  *                 type: string
-//  *                 example: 1234567891
-//  *               password:
-//  *                 type: string
-//  *                 example: test12
-//  *               gender:
-//  *                 type: string
-//  *                 enum: [MALE, FEMALE]
-//  *                 example: MALE
-//  *               role:
-//  *                 type: string
-//  *                 enum: [PATIENT]
-//  *                 example: PATIENT
-//  *               location:
-//  *                 type: object
-//  *                 description: Patient's location details
-//  *                 properties:
-//  *                   street:
-//  *                     type: string
-//  *                     example: abc
-//  *                   city:
-//  *                     type: string
-//  *                     example: lagos
-//  *                   state:
-//  *                     type: string
-//  *                     example: lagos
-//  *                   country:
-//  *                     type: string
-//  *                     example: nigeria
-//  *     responses:
-//  *       201:
-//  *         description: The Patient was successfully created
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: object
-//  *               properties:
-//  *                 status:
-//  *                   type: number
-//  *                   example: 201
-//  *                 message:
-//  *                   type: string
-//  *                   example: Patient Created Successfully, Kindly check your mail for your verification token
-//  *                 data:
-//  *                   type: object
-//  *                   properties:
-//  *                     user:
-//  *                       type: object
-//  *                       properties:
-//  *                         id:
-//  *                           type: string
-//  *                           example: 123e4567-e89b-12d3-a456-426614174000
-//  *                         name:
-//  *                           type: string
-//  *                           example: john doe
-//  *                         email:
-//  *                           type: string
-//  *                           example: adewobiadetayo11@gmail.com
-//  *                         role:
-//  *                           type: string
-//  *                           example: PATIENT
-//  *                     access_token:
-//  *                       type: string
-//  *                       example: jwt-token-here
-//  *       409:
-//  *         description: Patient already exists
-//  *       400:
-//  *         description: Bad Request (Validation errors)
-//  *       500:
-//  *         description: Some server error
-//  */
-// `;
 exports.login = `
 /**
  * @swagger

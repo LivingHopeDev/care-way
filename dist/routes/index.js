@@ -1,7 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const auth_route_1 = require("./auth.route");
+const auth_routes_1 = require("./auth.routes");
+const appointment_routes_1 = require("./appointment.routes");
+const availability_routes_1 = require("./availability.routes");
+const provider_routes_1 = require("./provider.routes");
+const review_routes_1 = require("./review.routes");
 const rootRouter = (0, express_1.Router)();
-rootRouter.use("/auth", auth_route_1.authRouter);
+rootRouter.use("/auth", auth_routes_1.authRouter);
+rootRouter.use("/appointments", appointment_routes_1.appointmentRouter);
+rootRouter.use("/availabilities", availability_routes_1.availabilityRouter);
+rootRouter.use("/providers", provider_routes_1.providerRouter);
+rootRouter.use("/reviews", review_routes_1.reviewRouter);
 exports.default = rootRouter;
