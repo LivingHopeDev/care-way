@@ -7,9 +7,9 @@ import { reviewRouter } from "./review.routes";
 const rootRouter = Router();
 
 rootRouter.use("/auth", authRouter);
-rootRouter.use("/appointment", appointmentRouter);
-rootRouter.use("/availability", availabilityRouter);
-rootRouter.use("/provider", providerRouter);
-rootRouter.use("/review", reviewRouter);
+rootRouter.use("/appointments", appointmentRouter);
+rootRouter.use("/availabilities", availabilityRouter);
+rootRouter.use("/providers", providerRouter);
+rootRouter.use("/reviews", reviewRouter);
 
 export default rootRouter;

@@ -1,7 +1,7 @@
 export const getAllProviders = `
 /**
  * @swagger
- * /provider:
+ * /providers:
  *   get:
  *     summary: Retrieve a list of all providers with pagination and sorting
  *     tags: [Provider]

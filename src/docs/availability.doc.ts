@@ -1,7 +1,7 @@
 export const createAvailability = `
 /**
  * @swagger
- * /availability:
+ * /availabilities:
  *   post:
  *     summary: Create a new availability slot for a provider
  *     tags: [Availability]
@@ -52,7 +52,7 @@ export const createAvailability = `
 export const getAvailabilities = `
 /**
  * @swagger
- * /availability:
+ * /availabilities:
  *   get:
  *     summary: Retrieve availabilities for a provider with pagination and sorting
  *     tags: [Availability]
@@ -145,7 +145,7 @@ export const getAvailabilities = `
 export const updateAvailability = `
 /**
  * @swagger
- * /availability/{id}:
+ * /availabilities/{id}:
  *   put:
  *     summary: Update an existing availability slot for a provider
  *     tags: [Availability]
@@ -220,7 +220,7 @@ export const updateAvailability = `
 export const deleteAvailability = `
 /**
  * @swagger
- * /availability/{id}:
+ * /availabilities/{id}:
  *   delete:
  *     summary: Delete an existing availability slot for a provider
  *     tags: [Availability]

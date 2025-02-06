@@ -1,7 +1,7 @@
 export const bookAppointment = `
 /**
  * @swagger
- * /appointment:
+ * /appointments:
  *   post:
  *     summary: Book an appointment with a provider
  *     tags: [Appointment]
@@ -88,7 +88,7 @@ export const bookAppointment = `
 export const cancelAppointment = `
 /**
  * @swagger
- * /appointment/{id}/cancel:
+ * /appointments/{id}/cancel:
  *   patch:
  *     summary: Cancel an appointment by patient
  *     tags: [Appointment]
@@ -129,7 +129,7 @@ export const cancelAppointment = `
 export const acceptOrRejectAppointment = `
 /**
  * @swagger
- * /appointment/{id}:
+ * /appointments/{id}:
  *   patch:
  *     summary: Accept or reject an appointment (Provider)
  *     tags: [Appointment]
@@ -182,7 +182,7 @@ export const acceptOrRejectAppointment = `
 export const getAppointmentsByProvider = `
 /**
  * @swagger
- * /appointment/provider:
+ * /appointments/provider:
  *   get:
  *     summary: Get all appointments for a provider
  *     tags: [Appointment]
@@ -251,7 +251,7 @@ export const getAppointmentsByProvider = `
 export const getAppointmentsByPatient = `
 /**
  * @swagger
- * /appointment/patient:
+ * /appointments/patient:
  *   get:
  *     summary: Get all appointments for a patient
  *     tags: [Appointment]
@@ -320,7 +320,7 @@ export const getAppointmentsByPatient = `
 export const getAppointmentById = `
  /**
  * @swagger
- * /appointment/{id}:
+ * /appointments/{id}:
  *   get:
  *     summary: Get appointment details by ID
  *     tags: [Appointment]
@@ -385,7 +385,7 @@ export const getAppointmentById = `
 export const deleteAppointment = `
 /**
  * @swagger
- * /appointment/{id}:
+ * /appointments/{id}:
  *   delete:
  *     summary: Delete an appointment (Admin)
  *     tags: [Appointment]
