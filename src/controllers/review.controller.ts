@@ -6,8 +6,8 @@ const reviewService = new ReviewService();
 export const createReview = asyncHandler(
   async (req: Request, res: Response) => {
     const patientId = req.patient.id;
-    const appointment = await reviewService.createReview(patientId, req.body);
+    const { message } = await reviewService.createReview(patientId, req.body);
 
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(201).json({ status: "success", message });
   }
 );
