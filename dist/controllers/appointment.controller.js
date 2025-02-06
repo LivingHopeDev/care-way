@@ -29,7 +29,7 @@ exports.cancelAppointment = (0, asyncHandler_1.default)((req, res) => __awaiter(
         throw new middlewares_1.BadRequest("Appointment ID is required");
     }
     const appointment = yield appointmentService.cancelAppointment(appointmentId, patientId);
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
 }));
 exports.getAppointmentsByPatient = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const patientId = req.patient.id;
@@ -41,7 +41,7 @@ exports.getAppointmentsByPatient = (0, asyncHandler_1.default)((req, res) => __a
         orderDirection: orderDirection === "asc" ? "asc" : "desc",
     };
     const appointment = yield appointmentService.getAppointmentsByPatient(patientId, query);
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
 }));
 // For providers
 exports.acceptOrRejectAppointment = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -52,7 +52,7 @@ exports.acceptOrRejectAppointment = (0, asyncHandler_1.default)((req, res) => __
     }
     const { status } = req.body;
     const appointment = yield appointmentService.acceptOrRejectAppointment(appointmentId, providerId, status);
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
 }));
 exports.getAppointmentsByProvider = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const providerId = req.provider.id;
@@ -64,7 +64,7 @@ exports.getAppointmentsByProvider = (0, asyncHandler_1.default)((req, res) => __
         orderDirection: orderDirection === "asc" ? "asc" : "desc",
     };
     const appointment = yield appointmentService.getAppointmentsByProvider(providerId, query);
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
 }));
 exports.getAppointmentById = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const appointmentId = req.params.id;
@@ -78,7 +78,7 @@ exports.getAppointmentById = (0, asyncHandler_1.default)((req, res) => __awaiter
     }
     const appointment = yield appointmentService.getAppointmentById(appointmentId, userId, userRole);
     return res.status(200).json({
-        status_code: "200",
+        status: "success",
         data: appointment,
     });
 }));
@@ -86,5 +86,5 @@ exports.getAppointmentById = (0, asyncHandler_1.default)((req, res) => __awaiter
 exports.deleteAppointment = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const appointmentId = req.params.id;
     const appointment = yield appointmentService.deleteAppointment(appointmentId);
-    res.status(201).json({ status: "success", data: appointment });
+    res.status(200).json({ status: "success", data: appointment });
 }));

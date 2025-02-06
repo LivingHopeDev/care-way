@@ -3,7 +3,7 @@ import asyncHandler from "../middlewares/asyncHandler";
 import { ProfileService } from "../services";
 
 const profileService = new ProfileService();
-export const updateProviderStatus = asyncHandler(
+export const updateProfile = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user.id;
     const { message } = await profileService.updateProfile(userId, req.body);

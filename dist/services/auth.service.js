@@ -87,7 +87,6 @@ class AuthService {
                 });
                 return { newUser, patient };
             }));
-            // Generate OTP and send email outside of transaction
             const otp = yield this.otpService.createOtp(result.newUser.id);
             const { emailBody, emailText } = yield this.emailService.verifyEmailTemplate(name, otp.token);
             yield (0, queue_1.addEmailToQueue)({
@@ -125,7 +124,6 @@ class AuthService {
                     throw new middlewares_1.Conflict("User with this email already exists");
                 }
                 const hashedPassword = yield (0, utils_1.hashPassword)(password);
-                // Create user
                 const newUser = yield prisma.user.create({
                     data: {
                         name,
@@ -173,7 +171,6 @@ class AuthService {
                 });
                 return { newUser, provider };
             }));
-            // Generate OTP and send email outside of transaction
             const otp = yield this.otpService.createOtp(result.newUser.id);
             const { emailBody, emailText } = yield this.emailService.verifyEmailTemplate(name, otp.token);
             yield (0, queue_1.addEmailToQueue)({

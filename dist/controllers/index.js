@@ -19,3 +19,4 @@ __exportStar(require("./appointment.controller"), exports);
 __exportStar(require("./availability.controller"), exports);
 __exportStar(require("./provider.controller"), exports);
 __exportStar(require("./review.controller"), exports);
+__exportStar(require("./profile.controller"), exports);

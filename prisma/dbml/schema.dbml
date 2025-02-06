@@ -1,0 +1,162 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id String [pk]
+  name String [not null]
+  email String [unique, not null]
+  phone String [not null]
+  password String [not null]
+  gender String [not null]
+  isVerified Boolean [not null, default: false]
+  role Role [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  provider providers
+  patient patients
+  otp otps [not null]
+  session sessions
+}
+
+Table providers {
+  id String [pk]
+  userId String [unique, not null]
+  specialization String [not null]
+  fees Float [not null]
+  state String [not null]
+  street String [not null]
+  city String [not null]
+  country String [not null]
+  bus_stop String [not null]
+  profileImage String [not null, default: 'https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg']
+  status ProviderStatus [not null, default: 'PENDING']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  availability availabilities [not null]
+  documents documents [not null]
+  appointments appointments [not null]
+  review Review [not null]
+}
+
+Table patients {
+  id String [pk]
+  userId String [unique, not null]
+  profileImage String [not null, default: 'https://iau.edu.lc/wp-content/uploads/2016/09/dummy-image.jpg']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  appointment appointments [not null]
+  review Review [not null]
+}
+
+Table availabilities {
+  id String [pk]
+  providerId String [not null]
+  date DateTime [not null]
+  startTime DateTime [not null]
+  endTime DateTime [not null]
+  provider providers [not null]
+  appointments appointments [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table appointments {
+  id String [pk]
+  reason String [not null]
+  patientId String [not null]
+  providerId String [not null]
+  availabilityId String [not null]
+  appointmentDate DateTime [not null]
+  startTime DateTime [not null]
+  endTime DateTime [not null]
+  availability availabilities [not null]
+  patient patients [not null]
+  provider providers [not null]
+  status AppointmentStatus [not null, default: 'PENDING']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table documents {
+  id String [pk]
+  providerId String [not null]
+  fileUrl String [not null]
+  provider providers [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Review {
+  id String [pk]
+  rating Int [not null]
+  feedback String [not null]
+  providerId String [not null]
+  patientId String [not null]
+  provider providers [not null]
+  patient patients [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table otps {
+  id String [pk]
+  token String [not null]
+  userId String [not null]
+  expiry DateTime [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table sessions {
+  id String [pk]
+  userId String [unique, not null]
+  user users [not null]
+  sessionToken String [not null]
+  expiresAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Enum Role {
+  PROVIDER
+  PATIENT
+  ADMIN
+}
+
+Enum ProviderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+Enum AppointmentStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+Ref: providers.userId - users.id [delete: Cascade]
+
+Ref: patients.userId - users.id [delete: Cascade]
+
+Ref: availabilities.providerId > providers.id [delete: Cascade]
+
+Ref: appointments.availabilityId > availabilities.id [delete: Cascade]
+
+Ref: appointments.patientId > patients.id [delete: Cascade]
+
+Ref: appointments.providerId > providers.id [delete: Cascade]
+
+Ref: documents.providerId > providers.id [delete: Cascade]
+
+Ref: Review.providerId > providers.id [delete: Cascade]
+
+Ref: Review.patientId > patients.id [delete: Cascade]
+
+Ref: otps.userId > users.id [delete: Cascade]
+
+Ref: sessions.userId - users.id [delete: Cascade]

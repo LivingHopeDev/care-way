@@ -11,8 +11,12 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL")
 }
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 
 enum Role {
   PROVIDER

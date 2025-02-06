@@ -20,3 +20,4 @@ __exportStar(require("./emailService"), exports);
 __exportStar(require("./appointment.service"), exports);
 __exportStar(require("./providers.service"), exports);
 __exportStar(require("./review.service"), exports);
+__exportStar(require("./profile.service"), exports);
