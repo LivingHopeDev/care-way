@@ -12,7 +12,6 @@ export const createReview = asyncHandler(
   }
 );
 
-// Controller
 export const getAllReviews = asyncHandler(
   async (req: Request, res: Response) => {
     const { page, limit, orderBy, orderDirection } = req.query;
@@ -28,7 +27,6 @@ export const getAllReviews = asyncHandler(
   }
 );
 
-// Controller
 export const getProviderReviews = asyncHandler(
   async (req: Request, res: Response) => {
     const { providerId } = req.params;
